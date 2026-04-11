@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Salary Allocation Tracker</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <div class="layout-wrapper">
+    <aside class="sidebar" id="app-sidebar">
+      <div class="sidebar-header">
+        <h2 class="sidebar-brand">Salary Tracker</h2>
+        <button class="btn-sidebar-toggle" id="btn-toggle-sidebar" title="Toggle Sidebar">
+          <span class="material-symbols-outlined" id="sidebar-icon">left_panel_close</span>
+        </button>
+      </div>
+
+      <div class="sidebar-menu">
+        <button class="btn btn-text nav-item active" id="nav-budgets">
+          <span class="material-symbols-outlined icon">account_balance_wallet</span>
+          <span class="btn-text-label">Budgets</span>
+        </button>
+        <button class="btn btn-text nav-item" id="nav-payables">
+          <span class="material-symbols-outlined icon">credit_card</span>
+          <span class="btn-text-label">Payables</span>
+        </button>
+        <button class="btn btn-text nav-item" id="nav-receivables">
+          <span class="material-symbols-outlined icon">payments</span>
+          <span class="btn-text-label">Receivables</span>
+        </button>
+        <button class="btn btn-text nav-item" id="nav-savings">
+          <span class="material-symbols-outlined icon">savings</span>
+          <span class="btn-text-label">Savings</span>
+        </button>
+      </div>
+
+      <div class="sidebar-spacer"></div>
+      
+      <div class="sidebar-footer">
+        <button class="btn btn-text nav-item" id="btn-theme-toggle">
+          <span class="material-symbols-outlined icon" id="theme-icon">dark_mode</span>
+          <span class="btn-text-label" id="theme-text">Dark Mode</span>
+        </button>
+        <button class="btn btn-text nav-item" id="btn-settings">
+          <span class="material-symbols-outlined icon">settings</span>
+          <span class="btn-text-label">Settings</span>
+        </button>
+      </div>
+    </aside>
+
+    <div id="fab-backdrop" class="fab-backdrop"></div>
+
+    <main class="main-content">
+      <header class="top-app-bar">
+        <h3 id="current-view-title" class="board-main-title"></h3>
+        <div style="display:flex; align-items:center; gap: 8px;">
+          <div class="actions desktop-only" id="top-bar-actions"></div>
+          <button class="btn-icon-small mobile-only" id="btn-mobile-settings" title="Settings">
+            <span class="material-symbols-outlined">settings</span>
+          </button>
+        </div>
+      </header>
+
+      <div id="view-budgets" class="view-container active">
+        <div class="month-filter-container" id="month-filter-container"></div>
+        <div class="dashboard" id="dashboard-container"></div>
+      </div>
+
+      <div id="view-payables" class="view-container" style="padding: 24px;">
+        <div id="payables-container" class="grid-container"></div>
+      </div>
+
+      <div id="view-receivables" class="view-container" style="padding: 24px;">
+        <div id="receivables-container" class="grid-container"></div>
+      </div>
+
+      <div id="view-savings" class="view-container" style="padding: 24px;">
+        <div id="savings-container" class="grid-container"></div>
+      </div>
+
+      <div id="view-settings" class="view-container" style="padding: 24px; align-items: center;"></div>
+    </main>
+
+    <nav class="bottom-nav" id="bottom-nav">
+      <button class="nav-item active" data-target="budgets">
+        <span class="material-symbols-outlined">account_balance_wallet</span>
+        <span>Budgets</span>
+      </button>
+      <button class="nav-item" data-target="payables">
+        <span class="material-symbols-outlined">credit_card</span>
+        <span>Payables</span>
+      </button>
+      
+      <div class="nav-fab-wrapper">
+        <div class="fab-menu" id="fab-menu">
+          
+          <div class="fab-menu-item-wrapper fab-item-budget" id="fab-wrapper-category" title="Add Category">
+            <span class="fab-menu-label">New Category</span>
+            <div class="fab-menu-item"><span class="material-symbols-outlined">category</span></div>
+          </div>
+          <div class="fab-menu-item-wrapper fab-item-budget" id="fab-wrapper-payout" title="Add Payout">
+            <span class="fab-menu-label">New Payout</span>
+            <div class="fab-menu-item"><span class="material-symbols-outlined">payments</span></div>
+          </div>
+          
+          <div class="fab-menu-item-wrapper fab-item-payable" id="fab-wrapper-payable" title="Add Payable" style="display: none;">
+            <span class="fab-menu-label">New Payable</span>
+            <div class="fab-menu-item"><span class="material-symbols-outlined">credit_card</span></div>
+          </div>
+
+          <div class="fab-menu-item-wrapper fab-item-receivable" id="fab-wrapper-receivable" title="Add Receivable" style="display: none;">
+            <span class="fab-menu-label">New Receivable</span>
+            <div class="fab-menu-item"><span class="material-symbols-outlined">payments</span></div>
+          </div>
+
+          <div class="fab-menu-item-wrapper fab-item-saving" id="fab-wrapper-saving" title="Add Account" style="display: none;">
+            <span class="fab-menu-label">New Account</span>
+            <div class="fab-menu-item"><span class="material-symbols-outlined">savings</span></div>
+          </div>
+
+        </div>
+        <button class="nav-fab" id="main-nav-fab">
+          <span class="material-symbols-outlined" id="fab-icon">add</span>
+        </button>
+      </div>
+
+      <button class="nav-item" data-target="receivables">
+        <span class="material-symbols-outlined">payments</span>
+        <span>Receivables</span>
+      </button>
+      <button class="nav-item" data-target="savings">
+        <span class="material-symbols-outlined">savings</span>
+        <span>Savings</span>
+      </button>
+    </nav>
+  </div>
+
+  <dialog id="modal-custom-alert" class="m3-dialog" style="max-width: 360px; text-align: center; border-radius: 28px;">
+    <div style="display: flex; justify-content: center; margin-bottom: 16px;">
+        <span class="material-symbols-outlined" id="custom-alert-icon" style="font-size: 36px; color: var(--md-sys-color-primary);">info</span>
+    </div>
+    <h3 class="dialog-title" id="custom-alert-title" style="margin-bottom: 12px; justify-content: center;">Notice</h3>
+    <p id="custom-alert-message" style="margin-bottom: 24px; color: var(--md-sys-color-on-surface-variant); font-size: 15px; line-height: 1.5;"></p>
+    <div class="dialog-actions" style="justify-content: center;">
+      <button type="button" class="btn btn-filled" id="btn-custom-alert-ok" style="width: 100%;">OK</button>
+    </div>
+  </dialog>
+
+  <dialog id="modal-custom-confirm" class="m3-dialog" style="max-width: 360px; text-align: center; border-radius: 28px;">
+    <div style="display: flex; justify-content: center; margin-bottom: 16px;">
+        <span class="material-symbols-outlined" style="font-size: 36px; color: var(--md-sys-color-error);">warning</span>
+    </div>
+    <h3 class="dialog-title" id="custom-confirm-title" style="margin-bottom: 12px; justify-content: center;">Confirm Action</h3>
+    <p id="custom-confirm-message" style="margin-bottom: 24px; color: var(--md-sys-color-on-surface-variant); font-size: 15px; line-height: 1.5;"></p>
+    <div class="dialog-actions" style="justify-content: center; gap: 12px;">
+      <button type="button" class="btn btn-tonal" id="btn-custom-confirm-cancel" style="flex: 1;">Cancel</button>
+      <button type="button" class="btn btn-filled" id="btn-custom-confirm-ok" style="flex: 1; background-color: var(--md-sys-color-error); color: white;">Delete</button>
+    </div>
+  </dialog>
+
+  <dialog id="modal-settings" class="m3-dialog" style="max-width: 500px;">
+    <form method="dialog" id="form-settings" class="mobile-settings-form" style="width: 100%; max-width: 600px;">
+      <h3 class="dialog-title" id="desktop-settings-title" style="margin-bottom: 16px;">Settings</h3>
+
+      <div class="input-group mobile-dark-mode-toggle hide-on-desktop" style="margin-bottom: 24px; border-bottom: 1px solid var(--md-sys-color-outline); padding-bottom: 24px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+          <span style="display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600; color: var(--md-sys-color-primary);">
+            <span class="material-symbols-outlined" id="mobile-theme-icon">dark_mode</span> <span id="mobile-theme-text">Dark Mode</span>
+          </span>
+          <label class="theme-switch">
+            <input type="checkbox" id="setting-dark-mode-toggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label for="select-currency">Default Currency</label>
+        <select id="select-currency" class="custom-select-trigger" style="margin-bottom: 16px; width: 100%;">
+          <option value="₱">Philippine Peso (PHP ₱)</option>
+          <option value="$">US Dollar (USD $)</option>
+          <option value="€">Euro (EUR €)</option>
+          <option value="£">British Pound (GBP £)</option>
+          <option value="¥">Japanese Yen (JPY ¥)</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label for="select-thousand-sep">Thousands Separator</label>
+        <select id="select-thousand-sep" class="custom-select-trigger" style="margin-bottom: 16px; width: 100%;">
+          <option value=",">Comma (,) e.g. 1,000</option>
+          <option value=".">Dot (.) e.g. 1.000</option>
+          <option value="space">Space ( ) e.g. 1 000</option>
+          <option value="none">None e.g. 1000</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label for="select-decimal-sep">Decimal Separator (Cents)</label>
+        <select id="select-decimal-sep" class="custom-select-trigger" style="margin-bottom: 16px; width: 100%;">
+          <option value=".">Dot (.) e.g. 100.50</option>
+          <option value=",">Comma (,) e.g. 100,50</option>
+          <option value="none">None (Round to Whole Number)</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label for="select-date-format">Date Format</label>
+        <select id="select-date-format" class="custom-select-trigger" style="margin-bottom: 16px; width: 100%;">
+          <option value="long">Long (e.g. Month DD, YYYY)</option>
+          <option value="MM-DD-YYYY">MM-DD-YYYY</option>
+          <option value="DD-MM-YYYY">DD-MM-YYYY</option>
+          <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label for="select-date-sep">Date Separator</label>
+        <select id="select-date-sep" class="custom-select-trigger" style="margin-bottom: 16px; width: 100%;">
+          <option value="-">Dash (-)</option>
+          <option value="/">Slash (/)</option>
+        </select>
+      </div>
+
+      <hr style="border: none; border-top: 1px solid var(--md-sys-color-outline); margin: 24px 0; opacity: 0.3;">
+
+      <div class="input-group" style="margin-top: 8px; margin-bottom: 40px;">
+        <label>Data Management (Backup & Restore)</label>
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+          <button type="button" class="btn btn-tonal" id="btn-export-data" style="flex: 1;">Export JSON</button>
+          <label class="btn btn-tonal" for="input-import-data" style="flex: 1; cursor: pointer; margin: 0; text-align: center;">Import JSON</label>
+          <input type="file" id="input-import-data" accept=".json" style="display: none;">
+        </div>
+      </div>
+
+      <div class="dialog-actions" id="settings-dialog-actions" style="display: none; margin-top: 24px;">
+        <button type="button" class="btn btn-text" onclick="document.getElementById('modal-settings').close()">Close</button>
+        <button type="submit" class="btn btn-filled">Apply Changes</button>
+      </div>
+
+    </form>
+  </dialog>
+
+  <dialog id="modal-filter-payouts" class="m3-dialog">
+    <form method="dialog" id="form-filter-payouts">
+      <h3 class="dialog-title">Filter Payouts</h3>
+      
+      <div class="input-group">
+        <label>Year</label>
+        <select id="modal-filter-year" onchange="updateModalFilters('year')"></select>
+      </div>
+      
+      <div class="input-group">
+        <label>Month</label>
+        <select id="modal-filter-month" onchange="updateModalFilters('month')"></select>
+      </div>
+      
+      <div class="input-group">
+        <label>Specific Payout Date</label>
+        <select id="modal-filter-payout"></select>
+      </div>
+
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-text" onclick="document.getElementById('modal-filter-payouts').close()">Cancel</button>
+        <button type="button" class="btn btn-filled" onclick="applyFilters()">Apply Filter</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="modal-add-payout" class="m3-dialog">
+    <form method="dialog" id="form-add-payout">
+      <h3 class="dialog-title">Add Payout</h3>
+
+      <div class="input-group" style="margin-bottom: 24px;">
+        <label for="payout-type-select">What would you like to add?</label>
+        <select id="payout-type-select" required>
+          <option value="regular" selected>Regular Payout (Auto-generate 1 Year)</option>
+          <option value="manual">Start from scratch (Manual Date)</option>
+          <option value="special">Special Payout (Bonus, Gig, etc.)</option>
+        </select>
+      </div>
+
+      <div id="fields-regular">
+        <div class="input-group">
+          <label for="reg-frequency">Frequency</label>
+          <select id="reg-frequency" required>
+            <option value="" disabled selected>Select frequency...</option>
+            <option value="semi-monthly">Semi-Monthly (24 periods)</option>
+            <option value="bi-weekly">Bi-Weekly (26 periods)</option>
+            <option value="weekly">Weekly (52 periods)</option>
+            <option value="monthly">Monthly (12 periods)</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="reg-start-date">Start Date</label>
+          <input type="date" id="reg-start-date" required>
+        </div>
+      </div>
+
+      <div id="fields-manual" style="display: none;">
+        <div class="input-group">
+          <label for="manual-name">Payout Name</label>
+          <input type="text" id="manual-name" placeholder="e.g. 1st Cutoff, January Pay" autocomplete="off">
+        </div>
+        <div class="input-group">
+          <label for="manual-date">Payout Date</label>
+          <input type="date" id="manual-date">
+        </div>
+      </div>
+
+      <div id="fields-special" style="display: none;">
+        <div class="input-group">
+          <label for="spec-name">Payout Name</label>
+          <input type="text" id="spec-name" placeholder="e.g. 13th Month, Mid-year Bonus" autocomplete="off">
+        </div>
+        <div class="input-group">
+          <label for="spec-date">Payout Date</label>
+          <input type="date" id="spec-date">
+        </div>
+      </div>
+
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-text" onclick="document.getElementById('modal-add-payout').close()">Cancel</button>
+        <button type="submit" class="btn btn-filled">Add</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="modal-edit-payout" class="m3-dialog">
+    <form method="dialog" id="form-edit-payout">
+      <h3 class="dialog-title">Edit Payout Details</h3>
+      <input type="hidden" id="edit-payout-id">
+      
+      <div class="input-group">
+        <label for="edit-payout-name">Name / Label</label>
+        <input type="text" id="edit-payout-name" required autocomplete="off">
+      </div>
+      
+      <div class="input-group">
+        <label for="edit-payout-date">Date</label>
+        <input type="date" id="edit-payout-date" required>
+      </div>
+
+      <div class="input-group">
+        <label for="edit-payout-salary">Salary Received</label>
+        <input type="text" id="edit-payout-salary" required placeholder="0.00">
+      </div>
+
+      <div class="dialog-actions" style="justify-content: space-between;">
+        <button type="button" class="btn btn-text btn-delete-row" id="btn-delete-payout">Delete</button>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="btn btn-text" onclick="document.getElementById('modal-edit-payout').close()">Cancel</button>
+          <button type="submit" class="btn btn-filled">Save</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="modal-category" class="m3-dialog">
+    <form method="dialog" id="form-category">
+      <h3 class="dialog-title">New Expense Category</h3>
+      <div class="input-group">
+        <label for="cat-name">Category Name</label>
+        <input type="text" id="cat-name" required autocomplete="off">
+      </div>
+      <div class="input-group">
+        <label for="cat-note">Note (Optional, Max 20 chars)</label>
+        <input type="text" id="cat-note" maxlength="20" autocomplete="off" placeholder="e.g. Due 24th">
+      </div>
+      
+      <div class="checkbox-wrapper">
+        <label>
+          <input type="checkbox" id="cat-has-goal" checked>
+          Set a Budget Goal
+        </label>
+      </div>
+
+      <div id="new-goal-fields">
+        <div class="input-group">
+          <label for="cat-goal">Goal Amount</label>
+          <input type="number" id="cat-goal" step="0.01" required>
+        </div>
+        <div class="input-group">
+          <label for="cat-type">Goal Frequency</label>
+          <select id="cat-type" required>
+            <option value="monthly">For the whole month</option>
+            <option value="cutoff">For each specific cutoff</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-text" onclick="document.getElementById('modal-category').close()">Cancel</button>
+        <button type="submit" class="btn btn-filled">Add Category</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="modal-edit-category" class="m3-dialog">
+    <form method="dialog" id="form-edit-category">
+      <h3 class="dialog-title">Edit Category</h3>
+      <input type="hidden" id="edit-cat-id">
+      
+      <div class="input-group">
+        <label for="edit-cat-name">Category Name</label>
+        <input type="text" id="edit-cat-name" required autocomplete="off">
+      </div>
+      <div class="input-group">
+        <label for="edit-cat-note">Note (Optional, Max 20 chars)</label>
+        <input type="text" id="edit-cat-note" maxlength="20" autocomplete="off">
+      </div>
+
+      <div class="checkbox-wrapper">
+        <label>
+          <input type="checkbox" id="edit-cat-has-goal">
+          Set a Budget Goal
+        </label>
+      </div>
+
+      <div id="edit-goal-fields">
+        <div class="input-group">
+          <label for="edit-cat-goal">Goal Amount</label>
+          <input type="number" id="edit-cat-goal" step="0.01">
+        </div>
+        <div class="input-group">
+          <label for="edit-cat-type">Goal Frequency</label>
+          <select id="edit-cat-type">
+            <option value="monthly">For the whole month</option>
+            <option value="cutoff">For each specific cutoff</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="dialog-actions" style="justify-content: space-between;">
+        <button type="button" class="btn btn-text btn-delete-row" id="btn-delete-cat">Delete</button>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="btn btn-text" onclick="document.getElementById('modal-edit-category').close()">Cancel</button>
+          <button type="submit" class="btn btn-filled">Save</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="modal-comment" class="m3-dialog">
+    <form method="dialog" id="form-comment">
+      <h3 class="dialog-title">Expense Comment</h3>
+      <input type="hidden" id="comment-row-id">
+      <input type="hidden" id="comment-cat-id">
+      
+      <div class="input-group">
+        <label for="comment-text">Comment</label>
+        <textarea id="comment-text" rows="4" autocomplete="off" placeholder="Add a comment..."></textarea>
+      </div>
+
+      <div class="dialog-actions" style="justify-content: space-between;">
+        <button type="button" class="btn btn-text btn-delete-row" id="btn-delete-comment">Delete</button>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="btn btn-text" onclick="document.getElementById('modal-comment').close()">Cancel</button>
+          <button type="submit" class="btn btn-filled">Save</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="modal-add-payable" class="m3-dialog">
+    <form method="dialog" id="form-add-payable">
+      <h3 class="dialog-title">Add Payable</h3>
+      
+      <div class="input-group">
+        <label for="payable-title">Title (e.g., Car Loan, John Doe)</label>
+        <input type="text" id="payable-title" required autocomplete="off">
+      </div>
+      
+      <div class="input-group">
+        <label for="payable-total">Total Amount Borrowed</label>
+        <input type="number" id="payable-total" step="0.01" required>
+      </div>
+      
+      <div class="input-group">
+        <label for="payable-period">Installment Period (Months, Optional)</label>
+        <input type="number" id="payable-period" min="1" step="1">
+      </div>
+
+      <div class="input-group">
+        <label for="payable-amortization">Monthly Amortization</label>
+        <input type="text" id="payable-amortization" readonly disabled placeholder="Auto-calculated">
+      </div>
+
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-text" onclick="document.getElementById('modal-add-payable').close()">Cancel</button>
+        <button type="submit" class="btn btn-filled">Add Payable</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="modal-edit-payable" class="m3-dialog">
+    <form method="dialog" id="form-edit-payable">
+      <h3 class="dialog-title">Edit Payable</h3>
+      <input type="hidden" id="edit-payable-id">
+      
+      <div class="input-group">
+        <label for="edit-payable-title">Title</label>
+        <input type="text" id="edit-payable-title" required autocomplete="off">
+      </div>
+      
+      <div class="input-group">
+        <label for="edit-payable-total">Total Amount Borrowed</label>
+        <input type="number" id="edit-payable-total" step="0.01" required>
+      </div>
+      
+      <div class="input-group">
+        <label for="edit-payable-period">Installment Period (Months, Optional)</label>
+        <input type="number" id="edit-payable-period" min="1" step="1">
+      </div>
+
+      <div class="input-group">
+        <label for="edit-payable-amortization">Monthly Amortization</label>
+        <input type="text" id="edit-payable-amortization" readonly disabled placeholder="Auto-calculated">
+      </div>
+
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-text" onclick="document.getElementById('modal-edit-payable').close()">Cancel</button>
+        <button type="submit" class="btn btn-filled">Save Changes</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="modal-log-payment" class="m3-dialog">
+    <form method="dialog" id="form-log-payment">
+      <h3 class="dialog-title">Log a Payment</h3>
+      <input type="hidden" id="log-payment-id">
+      
+      <div class="input-group">
+        <label for="log-payment-amount">Payment Amount</label>
+        <input type="number" id="log-payment-amount" step="0.01" required>
+      </div>
+      
+      <div class="input-group">
+        <label for="log-payment-date">Date Paid</label>
+        <input type="date" id="log-payment-date" required>
+      </div>
+
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-text" onclick="document.getElementById('modal-log-payment').close()">Cancel</button>
+        <button type="submit" class="btn btn-filled">Log Payment</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="modal-edit-payment" class="m3-dialog">
+    <form method="dialog" id="form-edit-payment">
+      <h3 class="dialog-title">Edit Payment</h3>
+      <input type="hidden" id="edit-payment-payable-id">
+      <input type="hidden" id="edit-payment-id">
+      
+      <div class="input-group">
+        <label for="edit-payment-amount">Payment Amount</label>
+        <input type="number" id="edit-payment-amount" step="0.01" required>
+      </div>
+      
+      <div class="input-group">
+        <label for="edit-payment-date">Date Paid</label>
+        <input type="date" id="edit-payment-date" required>
+      </div>
+
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-text" onclick="document.getElementById('modal-edit-payment').close()">Cancel</button>
+        <button type="submit" class="btn btn-filled">Save Changes</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="modal-add-rec-account" class="m3-dialog">
+    <form method="dialog" id="form-add-rec-account">
+      <h3 class="dialog-title">Add Receivable</h3>
+      <div class="input-group">
+        <label for="rec-account-title">Title (e.g., John Doe, Client X)</label>
+        <input type="text" id="rec-account-title" required autocomplete="off">
+      </div>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-text" onclick="document.getElementById('modal-add-rec-account').close()">Cancel</button>
+        <button type="submit" class="btn btn-filled">Add</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="modal-add-debt" class="m3-dialog">
+    <form method="dialog" id="form-add-debt">
+      <h3 class="dialog-title">Add Receivable Item</h3>
+      <input type="hidden" id="add-debt-account-id">
+      
+      <div class="input-group">
+        <label for="add-debt-desc">Description / Title</label>
+        <input type="text" id="add-debt-desc" required autocomplete="off" placeholder="e.g. Lunch, Project advance">
+      </div>
+      
+      <div class="input-group">
+        <label for="add-debt-amount">Amount</label>
+        <input type="number" id="add-debt-amount" step="0.01" required>
+      </div>
+      
+      <div class="input-group">
+        <label for="add-debt-date">Date</label>
+        <input type="date" id="add-debt-date" required>
+      </div>
+
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-text" onclick="document.getElementById('modal-add-debt').close()">Cancel</button>
+        <button type="submit" class="btn btn-filled">Add Item</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="modal-edit-debt" class="m3-dialog">
+    <form method="dialog" id="form-edit-debt">
+      <h3 class="dialog-title">Edit Receivable Item</h3>
+      <input type="hidden" id="edit-debt-account-id">
+      <input type="hidden" id="edit-debt-id">
+      
+      <div class="input-group">
+        <label for="edit-debt-desc">Description / Title</label>
+        <input type="text" id="edit-debt-desc" required autocomplete="off">
+      </div>
+      
+      <div class="input-group">
+        <label for="edit-debt-amount">Amount</label>
+        <input type="number" id="edit-debt-amount" step="0.01" required>
+      </div>
+      
+      <div class="input-group">
+        <label for="edit-debt-date">Date</label>
+        <input type="date" id="edit-debt-date" required>
+      </div>
+
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-text" onclick="document.getElementById('modal-edit-debt').close()">Cancel</button>
+        <button type="submit" class="btn btn-filled">Save Changes</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="modal-log-rec-payment" class="m3-dialog">
+    <form method="dialog" id="form-log-rec-payment">
+      <h3 class="dialog-title">Log a Payment</h3>
+      <input type="hidden" id="log-rec-payment-account-id">
+      
+      <div class="input-group">
+        <label for="log-rec-payment-amount">Amount Paid</label>
+        <input type="number" id="log-rec-payment-amount" step="0.01" required>
+      </div>
+      
+      <div class="input-group">
+        <label for="log-rec-payment-date">Date Paid</label>
+        <input type="date" id="log-rec-payment-date" required>
+      </div>
+
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-text" onclick="document.getElementById('modal-log-rec-payment').close()">Cancel</button>
+        <button type="submit" class="btn btn-filled">Log Payment</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="modal-edit-rec-payment" class="m3-dialog">
+    <form method="dialog" id="form-edit-rec-payment">
+      <h3 class="dialog-title">Edit Payment</h3>
+      <input type="hidden" id="edit-rec-payment-account-id">
+      <input type="hidden" id="edit-rec-payment-id">
+      
+      <div class="input-group">
+        <label for="edit-rec-payment-amount">Amount Paid</label>
+        <input type="number" id="edit-rec-payment-amount" step="0.01" required>
+      </div>
+      
+      <div class="input-group">
+        <label for="edit-rec-payment-date">Date Paid</label>
+        <input type="date" id="edit-rec-payment-date" required>
+      </div>
+
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-text" onclick="document.getElementById('modal-edit-rec-payment').close()">Cancel</button>
+        <button type="submit" class="btn btn-filled">Save Changes</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="modal-add-savings-account" class="m3-dialog">
+    <form method="dialog" id="form-add-savings-account">
+      <h3 class="dialog-title">New Savings Account</h3>
+      <div class="input-group">
+        <label for="sav-acc-name">Account Name (e.g. Emergency Fund, BDO)</label>
+        <input type="text" id="sav-acc-name" required autocomplete="off">
+      </div>
+      <div class="input-group">
+        <label for="sav-acc-owner">Owner Name</label>
+        <input type="text" id="sav-acc-owner" required autocomplete="off">
+      </div>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-text" onclick="document.getElementById('modal-add-savings-account').close()">Cancel</button>
+        <button type="submit" class="btn btn-filled">Create</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="modal-log-savings-txn" class="m3-dialog">
+    <form method="dialog" id="form-log-savings-txn">
+      <h3 class="dialog-title">Log Transaction</h3>
+      <input type="hidden" id="log-sav-acc-id">
+      
+      <div class="input-group">
+        <label for="sav-txn-type">Transaction Type</label>
+        <select id="sav-txn-type" required>
+          <option value="incoming">Incoming (Deposit, Repayment)</option>
+          <option value="outgoing">Outgoing (Withdrawal, Loan)</option>
+        </select>
+      </div>
+      
+      <div class="input-group">
+        <label for="sav-txn-amount">Amount</label>
+        <input type="number" id="sav-txn-amount" step="0.01" required>
+      </div>
+      
+      <div class="input-group">
+        <label for="sav-txn-person">Person</label>
+        <input type="text" id="sav-txn-person" list="sav-txn-person-list" placeholder="Select or type a name..." required autocomplete="off">
+        <datalist id="sav-txn-person-list"></datalist>
+      </div>
+      
+      <div class="input-group">
+        <label for="sav-txn-desc">Description</label>
+        <input type="text" id="sav-txn-desc" placeholder="e.g. Salary, Rent" required autocomplete="off">
+      </div>
+
+      <div class="input-group">
+        <label for="sav-txn-date">Date</label>
+        <input type="date" id="sav-txn-date" required>
+      </div>
+
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-text" onclick="document.getElementById('modal-log-savings-txn').close()">Cancel</button>
+        <button type="submit" class="btn btn-filled">Log</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
