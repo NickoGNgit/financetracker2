@@ -3724,32 +3724,30 @@ function syncLinkedPayable(payableId, payoutId, amount, status, timestamp) {
     if (!payable) return;
 
     // Create a predictable ID based on the specific payout 
-    // so we don't accidentally duplicate or delete the wrong payments!
     const linkedPaymentId = 'pmt_sync_' + payoutId; 
     
     // Check if this specific payout has already logged a payment
     const existingPaymentIndex = payable.payments.findIndex(pmt => pmt.id === linkedPaymentId);
 
     if (status === 'paid' && amount > 0) {
-        // If paid, calculate the correct date string
-        const dateObj = new Date(timestamp);
-        const y = dateObj.getFullYear();
-        const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-        const d = String(dateObj.getDate()).padStart(2, '0');
-        const dateStr = `${y}-${m}-${d}`;
-
+        // FIX: Use the actual current date/time right now, NOT the future payout date
+        const today = new Date();
+        
         if (existingPaymentIndex !== -1) {
-            // Update the existing linked payment if the amount changed
+            // If it already exists, just update the amount but KEEP the original date it was paid
             payable.payments[existingPaymentIndex].amount = amount;
-            payable.payments[existingPaymentIndex].date = dateStr;
-            payable.payments[existingPaymentIndex].timestamp = timestamp;
         } else {
-            // Log a brand new payment
+            // Log a brand new payment with exactly today's date
+            const y = today.getFullYear();
+            const m = String(today.getMonth() + 1).padStart(2, '0');
+            const d = String(today.getDate()).padStart(2, '0');
+            const dateStr = `${y}-${m}-${d}`;
+
             payable.payments.push({
                 id: linkedPaymentId,
                 amount: amount,
                 date: dateStr,
-                timestamp: timestamp
+                timestamp: today.getTime()
             });
         }
     } else {
